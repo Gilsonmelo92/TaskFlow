@@ -1,6 +1,6 @@
-# TaskFlow 
+# TaskFlow
 
-Sistema de gerenciamento de tarefas desenvolvido em Python utilizando FastAPI. 
+Sistema de gerenciamento de tarefas desenvolvido em Python utilizando FastAPI.
 
 ## Tecnologias
 
@@ -8,6 +8,6 @@ Sistema de gerenciamento de tarefas desenvolvido em Python utilizando FastAPI.
 - FastAPI
 - Uvicorn
 
-## Obsertivo
+## Objetivo
 
-Projeto desenvolvido para fins de estudo e contrução de portfólio como Desenvolvedor Full Stack.
+Projeto desenvolvido para fins de estudo e construção de portfólio como Desenvolvedor Full Stack.
