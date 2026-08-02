@@ -2,7 +2,7 @@
 .venv/
 
 # Cache do Python
-_pycache_/
+__pycache__/
 *.pyc
 
 # Configurações do VS Code
