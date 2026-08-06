@@ -4,8 +4,8 @@ from app.database.database import Base, engine
 from app.database import models
 
 app = FastAPI(
-    title = "TaskFlow API",
-    version = "0.1.0"
+    title ="TaskFlow API",
+    version ="0.1.0"
 )
 
 app.include_router(tasks_router)
