@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from app.database.models import Tarefa
 
 
-tarefas = []
 
 # --- LISTAR TAREFAS ---
 #"Use esta Session para consultar a tabela representada pelo Model Tarefa e me devolva todos os registros."
@@ -14,9 +13,6 @@ def listar_tarefas(db: Session):
 # --- BUSCAR TAREFA ---
 def buscar_tarefa(db: Session, id: int):
     return db.query(Tarefa).filter(Tarefa.id == id).first()
-
-#    com o importe do HTTPException, podemos retornar um erro 404 caso a tarefa não seja encontrada.
-
 
 # --- CRIAR TAREFA ---
 def criar_tarefa(db:Session, task: TaskCreate):
