@@ -1,51 +1,63 @@
 from app.schemas.task import TaskCreate
+from sqlalchemy.orm import Session
+from app.database.models import Tarefa
 
 
 tarefas = []
 
 # --- LISTAR TAREFAS ---
-def listar_tarefas():
-    return tarefas
+#"Use esta Session para consultar a tabela representada pelo Model Tarefa e me devolva todos os registros."
+
+def listar_tarefas(db: Session):
+    return db.query(Tarefa).all()
 
 # --- BUSCAR TAREFA ---
-def buscar_tarefa(id: int):
-    for tarefa in tarefas:
-        if tarefa["id"] == id:
-            return tarefa
+def buscar_tarefa(db: Session, id: int):
+    return db.query(Tarefa).filter(Tarefa.id == id).first()
 
 #    com o importe do HTTPException, podemos retornar um erro 404 caso a tarefa não seja encontrada.
 
 
 # --- CRIAR TAREFA ---
-def criar_tarefa(task: TaskCreate):
-    #Gera um novo ID baseado no maior ID existente.
-    novo_id = max([t["id"] for t in tarefas], default=0) + 1
-
-    nova_tarefa = {
-        "id": novo_id,
-        "titulo": task.titulo,
-        "concluida": False
-    }
-
-    tarefas.append(nova_tarefa)
+def criar_tarefa(db:Session, task: TaskCreate):
+    nova_tarefa = Tarefa(
+        titulo=task.titulo,
+        concluida=False
+    )
+    db.add(nova_tarefa)
+    db.commit()
+    db.refresh(nova_tarefa)
+    
     return nova_tarefa
 
 # --- ATUALIZAR TAREFA ---
-def atualizar_tarefa(id: int, task: TaskCreate):
-    for tarefa in tarefas:
-        if tarefa["id"] == id:
-            tarefa["titulo"] = task.titulo
-            return tarefa
+def atualizar_tarefa(db: Session, id: int, task: TaskCreate):
+    tarefa = db.query(Tarefa).filter(Tarefa.id == id).first()
+
+    if not tarefa:
+        return None
+
+    tarefa.titulo = task.titulo
+
+    db.commit()
+    db.refresh(tarefa)
+
+    return tarefa
 
 
         
 # --- DELETAR TAREFA ---
-def deletar_tarefa(id: int):
-    for tarefa in tarefas:
-        if tarefa["id"] == id:
-            tarefas.remove(tarefa)
-            return {
-                "mensagem": "Tarefa deletada com sucesso"
+def deletar_tarefa(db: Session,id: int):
+    tarefa = db.query(Tarefa).filter(Tarefa.id == id).first()
+
+    if not tarefa:
+        return None
+
+    db.delete(tarefa)
+    db.commit()
+
+    return {
+            "mensagem": "Tarefa deletada com sucesso"
             }
 
 

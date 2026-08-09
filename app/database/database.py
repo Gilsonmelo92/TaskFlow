@@ -12,3 +12,10 @@ SessionLocal = sessionmaker(bind=engine)
 #Será utilizada por todos os Models.
 Base = declarative_base()
 
+def get_db():
+    
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
