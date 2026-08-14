@@ -1,0 +1,158 @@
+from fastapi.testclient import TestClient
+
+from app.main import app
+
+
+client = TestClient(app)
+
+
+def test_listar_tarefas():
+    response = client.get("/tarefas")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+def test_criar_tarefa():
+    dados =  {
+        "titulo": "Estudar testes automatizados"
+    }
+    response = client.post("/tarefas", json=dados)
+
+    assert response.status_code == 201
+
+    resposta = response.json()
+
+    assert resposta["id"] is not None
+    assert resposta["titulo"] == "Estudar testes automatizados"
+    assert resposta["concluida"] is False
+
+def test_criar_tarefa_com_titulo_invalido():
+    dados = {
+        "titulo": "a"
+    }
+
+    response = client.post("/tarefas", json=dados)
+
+    assert response.status_code == 422
+
+
+def test_criar_tarefa_com_campo_extra():
+    dados = {
+        "titulo": "Estudar FastAPI",
+        "Concluida": True
+    }
+
+    response = client.post("/tarefas", json=dados)
+
+    assert response.status_code == 422    
+
+def test_buscar_tarefa():
+    dados = {
+        "titulo": "Tarefa para buscar"
+    }
+
+    response_criar = client.post("/tarefas", json=dados)
+
+    assert response_criar.status_code == 201
+
+    tarefa_criada = response_criar.json()
+
+    id_tarefa = tarefa_criada["id"]
+
+    response_buscar = client.get(f"/tarefas/{id_tarefa}")
+
+    assert response_buscar.status_code == 200
+
+    resposta = response_buscar.json()
+
+    assert resposta["id"] == id_tarefa
+    assert resposta["titulo"] == "Tarefa para buscar"
+
+def test_buscar_tarefa_inexistente():
+    response = client.get("tarefa/99999")
+
+    assert response.status_code == 404
+
+def test_atualizar_tarefa():
+    dados_criacao = {
+        "titulo": "Tarefa original"
+    }
+
+    response_criar = client.post(
+        "/tarefas",
+        json=dados_criacao
+    )
+
+    assert response_criar.status_code == 201
+
+    tarefa_criada = response_criar.json()
+
+    id_tarefa = tarefa_criada["id"]
+
+    dados_atualizacao = {
+        "titulo": "Tarefa atualizada"
+    }
+
+    response_atualizar = client.put(
+        f"/tarefas/{id_tarefa}",
+        json=dados_atualizacao
+    )
+
+    assert response_atualizar.status_code == 200
+
+    resposta = response_atualizar.json()
+
+    assert resposta["id"] == id_tarefa
+    assert resposta["titulo"] == "Tarefa atualizada"
+    assert resposta["concluida"] is False
+
+
+def test_atualizar_tarefa_inexistente():
+    dados = {
+        "titulo": "Tentativa de atualização"
+    }
+
+    response = client.put("/tarefa/99999", json=dados)
+
+    assert response.status_code == 404
+
+def test_deletar_tarefa():
+    dados = {
+        "titulo": "Tarefa para deletar"
+    }
+
+    # Criar a tarefa
+    response_criar = client.post(
+        "/tarefas",
+        json=dados
+    )
+
+    assert response_criar.status_code == 201
+
+    tarefa_criada = response_criar.json()
+
+    id_tarefa = tarefa_criada["id"]
+
+    # Deletar a tarefa
+    response_deletar = client.delete(
+        f"/tarefas/{id_tarefa}"
+    )
+
+    assert response_deletar.status_code == 200
+
+    resposta = response_deletar.json()
+
+    assert resposta["mensagem"] == "Tarefa deletada com sucesso"
+
+    # Confirmar que a tarefa não existe mais
+    response_buscar = client.get(
+        f"/tarefas/{id_tarefa}"
+    )
+
+    assert response_buscar.status_code == 404
+
+def test_deletar_tarefa_inexistente():
+    response = client.delete("/tarefas/99999")
+
+    assert response.status_code == 404    
