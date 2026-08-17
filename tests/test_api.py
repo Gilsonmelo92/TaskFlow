@@ -400,3 +400,31 @@ def test_update_task_keeps_completed_status(client):
 
     assert data["titulo"] == "Tarefa atualizada"
     assert data["concluida"] is False  
+
+#Teste da função de atualização de status no schema>task.py
+
+def test_update_task_status(client):
+    create_response = client.post(
+        "/tarefas", json={
+            "titulo": "Tarefa para concluir"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    task_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/tarefas/{task_id}", json={
+            "concluida": True
+        }
+    )
+
+    assert update_response.status_code == 200
+
+    data = update_response.json()
+
+    assert data["id"] == task_id
+    assert data["titulo"] == "Tarefa para concluir"
+    assert data["concluida"] is True
+    

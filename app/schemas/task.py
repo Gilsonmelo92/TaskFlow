@@ -10,7 +10,6 @@ class TaskCreate(BaseModel):
         max_length=100)
 
 #validator para garantir que o título não seja vazio ou contenha apenas espaços em branco
-
     @field_validator("titulo", mode="before")
     @classmethod
     def validar_titulo(cls, valor):
@@ -19,6 +18,30 @@ class TaskCreate(BaseModel):
         if not valor:
             raise ValueError("O título não pode ser vazio ou conter apenas espaços em branco.")
         return valor
+
+class TaskUpdate(BaseModel):
+    model_config = ConfigDict(extra= "forbid")
+
+    titulo:str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=100
+    )
+
+    concluida: bool | None = None
+
+    @field_validator("titulo", mode="before")
+    @classmethod
+    def validar_titulo(cls,valor):
+        if valor is None:
+            return valor
+        valor = valor.strip()
+
+        if not valor:
+            raise ValueError(
+                "O titulo não pode ser vazio ou conter apenas espaços em brancos."
+            )   
+        return valor 
 
 class TaskResponse(BaseModel):
     id: int

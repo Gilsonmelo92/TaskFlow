@@ -1,8 +1,6 @@
-from app.schemas.task import TaskCreate
+from app.schemas.task import TaskCreate, TaskUpdate
 from sqlalchemy.orm import Session
 from app.database.models import Tarefa
-
-
 
 # --- LISTAR TAREFAS ---
 #"Use esta Session para consultar a tabela representada pelo Model Tarefa e me devolva todos os registros."
@@ -27,13 +25,18 @@ def criar_tarefa(db:Session, task: TaskCreate):
     return nova_tarefa
 
 # --- ATUALIZAR TAREFA ---
-def atualizar_tarefa(db: Session, id: int, task: TaskCreate):
+def atualizar_tarefa(db: Session, id: int, task: TaskUpdate):
     tarefa = db.query(Tarefa).filter(Tarefa.id == id).first()
 
     if not tarefa:
         return None
+    
+    if task.titulo is not None:
+        tarefa.titulo = task.titulo
 
-    tarefa.titulo = task.titulo
+    if task.concluida is not None: 
+        tarefa.concluida = task.concluida
+
 
     db.commit()
     db.refresh(tarefa)

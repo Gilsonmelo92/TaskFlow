@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from app.schemas.task import TaskCreate, TaskResponse, MessageResponse
+from app.schemas.task import TaskCreate, TaskResponse, MessageResponse, TaskUpdate
 from app.database.database import get_db
 from app.services import task_service
 
@@ -56,7 +56,7 @@ def criar_tarefa(
         )
 def atualizar_tarefa(
      id: int, 
-     task: TaskCreate, 
+     task: TaskUpdate, 
      db: Session = Depends(get_db)
     ):
 
