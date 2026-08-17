@@ -10,10 +10,10 @@ def test_create_task(db):
         titulo="Estudar testes com pytest",
         concluida=False
     )
-
+    #colocar o objeto na session
     db.add(tarefa)
     db.commit()
-    db.refresh(tarefa)
+    db.refresh(tarefa) #atualiza o objeto Python com os dados que estão no banco.
 
     assert tarefa.id is not None
     assert tarefa.titulo == "Estudar testes com pytest"

@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-
+#criamos um cliente de teste
 client = TestClient(app)
 
 
@@ -10,23 +10,24 @@ def test_listar_tarefas():
     response = client.get("/tarefas")
 
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    assert isinstance(response.json(), list)#verifica o conteudo da msg
 
 
 def test_criar_tarefa():
     dados =  {
         "titulo": "Estudar testes automatizados"
     }
-    response = client.post("/tarefas", json=dados)
+    response = client.post("/tarefas", json=dados)# aquisição para prória API
 
     assert response.status_code == 201
 
     resposta = response.json()
 
-    assert resposta["id"] is not None
+    assert resposta["id"] is not None #recebe id do banco
     assert resposta["titulo"] == "Estudar testes automatizados"
-    assert resposta["concluida"] is False
+    assert resposta["concluida"] is False #regra de negócio
 
+#tratamento de erro de validação criado no TaskCreate
 def test_criar_tarefa_com_titulo_invalido():
     dados = {
         "titulo": "a"
@@ -40,7 +41,7 @@ def test_criar_tarefa_com_titulo_invalido():
 def test_criar_tarefa_com_campo_extra():
     dados = {
         "titulo": "Estudar FastAPI",
-        "Concluida": True
+        "concluida": True
     }
 
     response = client.post("/tarefas", json=dados)
@@ -74,6 +75,7 @@ def test_buscar_tarefa_inexistente():
 
     assert response.status_code == 404
 
+#testar o PUT
 def test_atualizar_tarefa():
     dados_criacao = {
         "titulo": "Tarefa original"
