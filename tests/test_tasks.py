@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+from app.services import task_service
+from app.schemas.task import TaskCreate, TaskUpdate
 
 from app.main import app
 
@@ -158,3 +160,45 @@ def test_deletar_tarefa_inexistente():
     response = client.delete("/tarefas/99999")
 
     assert response.status_code == 404    
+
+
+# testar regra de negocio
+
+def test_atualizar_tarefa_titulo_mantem_status(db):
+
+    # 1. Criar uma tarefa inicialmente não concluída
+    tarefa = task_service.criar_tarefa(
+        db,
+        TaskCreate(titulo="Tarefa original")
+    )
+
+    # 2. Marcar a tarefa como concluída
+    dados_status = TaskUpdate(
+        concluida=True
+    )
+
+    tarefa_atualizada = task_service.atualizar_tarefa(
+        db,
+        tarefa.id,
+        dados_status
+    )
+
+    # Confirmar que o status foi alterado
+    assert tarefa_atualizada.concluida is True
+
+    # 3. Atualizar somente o título
+    dados_titulo = TaskUpdate(
+        titulo="Novo título"
+    )
+
+    tarefa_atualizada = task_service.atualizar_tarefa(
+        db,
+        tarefa.id,
+        dados_titulo
+    )
+
+    # 4. Confirmar que o título foi alterado
+    assert tarefa_atualizada.titulo == "Novo título"
+
+    # 5. Confirmar que o status permaneceu concluído
+    assert tarefa_atualizada.concluida is True

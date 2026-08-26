@@ -428,3 +428,92 @@ def test_update_task_status(client):
     assert data["titulo"] == "Tarefa para concluir"
     assert data["concluida"] is True
     
+def test_update_task_without_fields(client):
+    create_response = client.post(
+        "/tarefas",
+        json={
+            "titulo": "Tarefa para atualizar"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    task_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/tarefas/{task_id}",
+        json={}
+    )
+
+    assert update_response.status_code == 422
+
+
+def test_update_task_with_extra_field(client):
+    create_response = client.post(
+        "/tarefas",
+        json={
+            "titulo": "Tarefa para atualizar"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    task_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/tarefas/{task_id}",
+        json={
+            "prioridade": "alta"
+        }
+    )
+
+    assert update_response.status_code == 422
+
+
+def test_update_task_title_only_spaces(client):
+    create_response = client.post(
+        "/tarefas",
+        json={
+            "titulo": "Tarefa original"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    task_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/tarefas/{task_id}",
+        json={
+            "titulo": "   "
+        }
+    )
+
+    assert update_response.status_code == 422      
+
+
+def test_update_task_strips_whitespace(client):
+    create_response = client.post(
+        "/tarefas",
+        json={
+            "titulo": "Tarefa original"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    task_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/tarefas/{task_id}",
+        json={
+            "titulo": "   Estudar Python   "
+        }
+    )
+
+    assert update_response.status_code == 200
+
+    data = update_response.json()
+
+    assert data["titulo"] == "Estudar Python"      
+
