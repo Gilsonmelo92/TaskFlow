@@ -57,6 +57,8 @@ class TaskUpdate(BaseModel):
         return self
 
 class TaskResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     titulo: str
     concluida: bool
