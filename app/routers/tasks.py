@@ -55,7 +55,8 @@ def buscar_tarefa(
         summary="Criar tarefa",
         description="Cria uma nova tarefa no sistema.",
         responses={
-            201:{"description": "Tarefa criada com sucesso."}
+            201:{"description": "Tarefa criada com sucesso."},
+            422:{"description": "Dados da tarefa inválidos."}
         }
         )
 def criar_tarefa(
@@ -71,7 +72,8 @@ def criar_tarefa(
         summary="Atualizar tarefa",
         description="Atualiza os dados de uma tarefa existente.",
         responses={
-            404:{"description": "Tarefa não encontrada."}
+            404:{"description": "Tarefa não encontrada."},
+            422:{"description": "Dados da tarefa inválidos."}
        } 
        )
 def atualizar_tarefa(
