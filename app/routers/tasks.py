@@ -5,12 +5,16 @@ from app.database.database import get_db
 from app.services import task_service
 
 
-router = APIRouter()
+router = APIRouter(
+     tags=["Tarefas"]
+)
 
 # --- LISTAR TAREFAS ---
 @router.get(
         "/tarefas", 
-        response_model=list[TaskResponse]
+        response_model=list[TaskResponse],
+        summary= "Listar tarefas",
+        description= "Retorna todas as tarefas cadastradas no sistema."
         )
 def listar_tarefas(
     db: Session = Depends(get_db)
@@ -21,7 +25,13 @@ def listar_tarefas(
 # --- BUSCAR TAREFA ---
 @router.get(
         "/tarefas/{id}", 
-        response_model=TaskResponse
+        response_model=TaskResponse,
+        summary="Buscar tarefa",
+        description="Retorna uma tarefa específica pelo seu ID.",
+        responses={
+            404:{"description":" Tarefa não encontrada."}
+        }
+
         )
 def buscar_tarefa(
     id: int, 
@@ -41,7 +51,12 @@ def buscar_tarefa(
 @router.post(
         "/tarefas", 
         response_model=TaskResponse, 
-        status_code=status.HTTP_201_CREATED
+        status_code=status.HTTP_201_CREATED,
+        summary="Criar tarefa",
+        description="Cria uma nova tarefa no sistema.",
+        responses={
+            201:{"description": "Tarefa criada com sucesso."}
+        }
         )
 def criar_tarefa(
     task: TaskCreate,
@@ -52,8 +67,13 @@ def criar_tarefa(
 # --- ATUALIZAR TAREFA ---
 @router.put(
         "/tarefas/{id}", 
-        response_model=TaskResponse
-        )
+        response_model=TaskResponse,
+        summary="Atualizar tarefa",
+        description="Atualiza os dados de uma tarefa existente.",
+        responses={
+            404:{"description": "Tarefa não encontrada."}
+       } 
+       )
 def atualizar_tarefa(
      id: int, 
      task: TaskUpdate, 
@@ -73,7 +93,12 @@ def atualizar_tarefa(
         
 # --- DELETAR TAREFA ---
 @router.delete(
-        "/tarefas/{id}", response_model=MessageResponse
+        "/tarefas/{id}", response_model=MessageResponse,
+        summary="Deletar tarefa",
+        description="Remove uma tarefa existente do sistema.",
+        responses={
+            404:{"description":"Tarefa não encontrada."}
+        }
         )
 def deletar_tarefa(
      id: int, 

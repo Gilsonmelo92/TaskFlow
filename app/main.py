@@ -5,6 +5,7 @@ from app.database import models
 
 app = FastAPI(
     title ="TaskFlow API",
+    description= "API REST para gerenciamento de tarefas.",
     version ="0.1.0"
 )
 
