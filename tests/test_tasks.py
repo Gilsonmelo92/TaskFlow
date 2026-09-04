@@ -1,21 +1,16 @@
-from fastapi.testclient import TestClient
 from app.services import task_service
 from app.schemas.task import TaskCreate, TaskUpdate
 
-from app.main import app
-
-#criamos um cliente de teste
-client = TestClient(app)
 
 
-def test_listar_tarefas():
+def test_listar_tarefas(client):
     response = client.get("/tarefas")
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)#verifica o conteudo da msg
 
 
-def test_criar_tarefa():
+def test_criar_tarefa(client):
     dados =  {
         "titulo": "Estudar testes automatizados"
     }
@@ -30,7 +25,7 @@ def test_criar_tarefa():
     assert resposta["concluida"] is False #regra de negócio
 
 #tratamento de erro de validação criado no TaskCreate
-def test_criar_tarefa_com_titulo_invalido():
+def test_criar_tarefa_com_titulo_invalido(client):
     dados = {
         "titulo": "a"
     }
@@ -40,7 +35,7 @@ def test_criar_tarefa_com_titulo_invalido():
     assert response.status_code == 422
 
 
-def test_criar_tarefa_com_campo_extra():
+def test_criar_tarefa_com_campo_extra(client):
     dados = {
         "titulo": "Estudar FastAPI",
         "concluida": True
@@ -50,7 +45,7 @@ def test_criar_tarefa_com_campo_extra():
 
     assert response.status_code == 422    
 
-def test_buscar_tarefa():
+def test_buscar_tarefa(client):
     dados = {
         "titulo": "Tarefa para buscar"
     }
@@ -72,13 +67,13 @@ def test_buscar_tarefa():
     assert resposta["id"] == id_tarefa
     assert resposta["titulo"] == "Tarefa para buscar"
 
-def test_buscar_tarefa_inexistente():
-    response = client.get("tarefa/99999")
+def test_buscar_tarefa_inexistente(client):
+    response = client.get("/tarefas/99999")
 
     assert response.status_code == 404
 
 #testar o PUT
-def test_atualizar_tarefa():
+def test_atualizar_tarefa(client):
     dados_criacao = {
         "titulo": "Tarefa original"
     }
@@ -112,16 +107,16 @@ def test_atualizar_tarefa():
     assert resposta["concluida"] is False
 
 
-def test_atualizar_tarefa_inexistente():
+def test_atualizar_tarefa_inexistente(client):
     dados = {
         "titulo": "Tentativa de atualização"
     }
 
-    response = client.put("/tarefa/99999", json=dados)
+    response = client.put("/tarefas/99999", json=dados)
 
     assert response.status_code == 404
 
-def test_deletar_tarefa():
+def test_deletar_tarefa(client):
     dados = {
         "titulo": "Tarefa para deletar"
     }
@@ -156,7 +151,7 @@ def test_deletar_tarefa():
 
     assert response_buscar.status_code == 404
 
-def test_deletar_tarefa_inexistente():
+def test_deletar_tarefa_inexistente(client):
     response = client.delete("/tarefas/99999")
 
     assert response.status_code == 404    
