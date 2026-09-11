@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
 from app.schemas.task import TaskCreate, TaskResponse, MessageResponse, TaskUpdate
 from app.database.database import get_db
@@ -14,12 +14,15 @@ router = APIRouter(
         "/tarefas", 
         response_model=list[TaskResponse],
         summary= "Listar tarefas",
-        description= "Retorna todas as tarefas cadastradas no sistema."
+        description= "Retorna uma página de tarefas cadastradas no sistema."
         )
 def listar_tarefas(
+    page: int = Query(default=1, ge=1, description="Número da página a ser retornada."), 
+    limit: int = Query(default=10, ge=1, le=100, description= "Quantidade de tarefas a serem retornadas por página."),
+
     db: Session = Depends(get_db)
     ):
-    return task_service.listar_tarefas(db)
+    return task_service.listar_tarefas(db, page, limit)
 
 
 # --- BUSCAR TAREFA ---

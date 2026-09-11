@@ -197,3 +197,77 @@ def test_atualizar_tarefa_titulo_mantem_status(db):
 
     # 5. Confirmar que o status permaneceu concluído
     assert tarefa_atualizada.concluida is True
+
+
+# Teste de paginação (page, limit)
+
+def test_listar_tarefas_com_limit(client):
+    client.post("/tarefas", json= {"titulo": "Tarefa 1"})
+    client.post("/tarefas", json= {"titulo": "Tarefa 2"})
+    client.post("/tarefas", json= {"titulo": "Tarefa 3"})
+
+    response = client.get("/tarefas?page=1&limit=2")
+
+    assert response.status_code == 200
+
+    tarefas = response.json()
+
+    assert len(tarefas) == 2
+
+
+def test_listar_tarefas_com_limit_negativo(client):
+    response = client.get("/tarefas?page=1&limit=0")
+
+    assert response.status_code == 422
+
+def test_listar_limit_acima_do_maximo(client):
+    response = client.get("/tarefas?page=1&limit=101")
+
+    assert response.status_code == 422    
+
+
+     
+
+def test_listar_tarefas_com_page(client):
+    client.post("/tarefas", json= {"titulo": "Tarefa 1"})
+    client.post("/tarefas", json= {"titulo": "Tarefa 2"})
+    client.post("/tarefas", json= {"titulo": "Tarefa 3"})
+
+    response = client.get("/tarefas?page=2&limit=2")
+
+    assert response.status_code == 200
+
+    tarefas = response.json()
+
+    assert len(tarefas) == 1
+    assert tarefas[0]["titulo"] == "Tarefa 3"
+
+def test_listar_tarefas_com_page_invalido(client):
+    response = client.get("/tarefas?page=0&limit=2")
+
+    assert response.status_code == 422 
+
+def test_listar_tarefas_com_page_negativo(client):
+    response = client.get("/tarefas?page=-1&limit=10")
+
+    assert response.status_code == 422
+
+# testar os valores padão do limit e page
+
+def test_listar_tarefas_com_valores_padrao(client):  
+    for i in range(12):
+        client.post(
+            "/tarefas",
+            json={"titulo": f"Tarefa {i + 1}"}
+        )
+
+    response = client.get("/tarefas")
+
+    assert response.status_code == 200
+
+    tarefas = response.json()
+
+    assert len(tarefas) == 10
+
+
+
