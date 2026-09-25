@@ -34,9 +34,10 @@ def test_list_tasks(client):
 
     data = response.json()
 
-    assert len(data) == 1
-    assert data[0]["titulo"] == "Tarefa para teste de listagem"
-    assert data[0]["concluida"] is False    
+    assert len(data["tarefas"]) == 1
+    assert data["total"] == 1
+    assert data["total_paginas"] == 1
+   
 
 
 def test_get_task(client):
@@ -251,7 +252,10 @@ def test_list_tasks_empty(client):
 
     data = response.json()
 
-    assert data == []
+    assert data["tarefas"] == []
+    assert data["total"] == 0
+    assert data["total_paginas"] == 0
+
 
 def test_create_task_strips_whitespace(client):
     response = client.post(
@@ -354,11 +358,14 @@ def test_list_multiple_tasks(client):
 
     data = response.json()
 
-    assert len(data) == 3
+    assert len(data["tarefas"]) == 3
 
-    assert data[0]["titulo"] == "Primeira tarefa"
-    assert data[1]["titulo"] == "Segunda tarefa"
-    assert data[2]["titulo"] == "Terceira tarefa"    
+    assert data["tarefas"][0]["titulo"] == "Primeira tarefa"
+    assert data["tarefas"][1]["titulo"] == "Segunda tarefa"
+    assert data["tarefas"][2]["titulo"] == "Terceira tarefa"
+
+    assert data["total"] == 3
+    assert data["total_paginas"] == 1    
 
 def test_new_task_starts_not_completed(client):
     response = client.post(

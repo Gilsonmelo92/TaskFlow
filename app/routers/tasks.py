@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
-from app.schemas.task import TaskCreate, TaskResponse, MessageResponse, TaskUpdate
+from app.schemas.task import TaskCreate, TaskResponse, TaskListResponse, MessageResponse, TaskUpdate
 from app.database.database import get_db
 from app.services import task_service
 
@@ -12,7 +12,7 @@ router = APIRouter(
 # --- LISTAR TAREFAS ---
 @router.get(
         "/tarefas", 
-        response_model=list[TaskResponse],
+        response_model=TaskListResponse,
         summary= "Listar tarefas",
         description= "Retorna uma página de tarefas cadastradas no sistema."
         )

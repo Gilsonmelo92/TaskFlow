@@ -8,8 +8,17 @@ from app.database.models import Tarefa
 def listar_tarefas(db: Session, page: int = 1, limit: int = 10):
     offset = (page - 1) * limit
 
-    return db.query(Tarefa).offset(offset).limit(limit).all()
+    total = db.query(Tarefa).count()
 
+    tarefas = db.query(Tarefa).offset(offset).limit(limit).all()
+
+    total_paginas = (total + limit - 1) // limit
+
+    return {
+        "tarefas": tarefas,
+        "total": total,
+        "total_paginas": total_paginas
+    }
 # --- BUSCAR TAREFA ---
 def buscar_tarefa(db: Session, id: int):
     return db.query(Tarefa).filter(Tarefa.id == id).first()

@@ -63,5 +63,11 @@ class TaskResponse(BaseModel):
     titulo: str
     concluida: bool
 
+class TaskListResponse(BaseModel):
+    tarefas: list[TaskResponse]
+    total: int
+    total_paginas: int
+
 class MessageResponse(BaseModel):
     mensagem: str
+

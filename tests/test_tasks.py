@@ -3,11 +3,18 @@ from app.schemas.task import TaskCreate, TaskUpdate
 
 
 
+
 def test_listar_tarefas(client):
     response = client.get("/tarefas")
 
     assert response.status_code == 200
-    assert isinstance(response.json(), list)#verifica o conteudo da msg
+
+    data = response.json()
+
+    assert isinstance(data, dict)
+    assert "tarefas" in data
+    assert "total" in data
+    assert "total_paginas" in data 
 
 
 def test_criar_tarefa(client):
@@ -210,9 +217,11 @@ def test_listar_tarefas_com_limit(client):
 
     assert response.status_code == 200
 
-    tarefas = response.json()
+    data = response.json()
 
-    assert len(tarefas) == 2
+    assert len(data["tarefas"]) == 2
+    assert data["total"] == 3
+    assert data["total_paginas"] == 2
 
 
 def test_listar_tarefas_com_limit_negativo(client):
@@ -237,10 +246,13 @@ def test_listar_tarefas_com_page(client):
 
     assert response.status_code == 200
 
-    tarefas = response.json()
+    data = response.json()
 
-    assert len(tarefas) == 1
-    assert tarefas[0]["titulo"] == "Tarefa 3"
+    assert len(data["tarefas"]) == 1
+    assert data["tarefas"][0]["titulo"] == "Tarefa 3"
+
+    assert data["total"] == 3
+    assert data["total_paginas"] == 2
 
 def test_listar_tarefas_com_page_invalido(client):
     response = client.get("/tarefas?page=0&limit=2")
@@ -265,9 +277,10 @@ def test_listar_tarefas_com_valores_padrao(client):
 
     assert response.status_code == 200
 
-    tarefas = response.json()
+    data = response.json()
 
-    assert len(tarefas) == 10
-
+    assert len(data["tarefas"]) == 10
+    assert data["total"] == 12
+    assert data["total_paginas"] == 2
 
 
