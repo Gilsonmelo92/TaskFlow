@@ -1,3 +1,6 @@
+from urllib import response
+
+
 def test_root(client):
     response = client.get("/")
 
@@ -37,7 +40,33 @@ def test_list_tasks(client):
     assert len(data["tarefas"]) == 1
     assert data["total"] == 1
     assert data["total_paginas"] == 1
-   
+
+def test_list_tasks_filter_completed(client):
+    # Criar tarefa concluida
+    response_criacao = client.post(
+        "/tarefas", json={ "titulo": "Tarefa 1"})
+
+    task_id = response_criacao.json()["id"]    
+
+    response_update = client.put(
+        f"/tarefas/{task_id}", json={"concluida": True}
+    )
+
+    # Criar tarefa não concluída
+    client.post(
+        "/tarefas", json={ "titulo": "Tarefa 2"}
+    )
+    # filtar tarefas concluidas
+    response = client.get("/tarefas?concluida=true")
+
+    assert response.status_code == 200
+
+    assert len(response.json()["tarefas"]) == 1
+    assert response.json()["tarefas"][0]["titulo"] == "Tarefa 1"
+
+    assert response.json()["total"] == 1
+    assert response.json()["total_paginas"] == 1
+
 
 
 def test_get_task(client):

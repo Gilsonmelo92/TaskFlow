@@ -19,10 +19,14 @@ router = APIRouter(
 def listar_tarefas(
     page: int = Query(default=1, ge=1, description="Número da página a ser retornada."), 
     limit: int = Query(default=10, ge=1, le=100, description= "Quantidade de tarefas a serem retornadas por página."),
+    concluida: bool | None = Query(
+        default= None, 
+        description = "Filtra tarefas pelo status de conclusão."
+    ),
 
     db: Session = Depends(get_db)
     ):
-    return task_service.listar_tarefas(db, page, limit)
+    return task_service.listar_tarefas(db, page, limit, concluida)
 
 
 # --- BUSCAR TAREFA ---

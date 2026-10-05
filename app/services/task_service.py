@@ -5,12 +5,16 @@ from app.database.models import Tarefa
 # --- LISTAR TAREFAS ---
 #"Use esta Session para consultar a tabela representada pelo Model Tarefa e me devolva todos os registros."
 
-def listar_tarefas(db: Session, page: int = 1, limit: int = 10):
-    offset = (page - 1) * limit
+def listar_tarefas(db: Session, page: int = 1, limit: int = 10, concluida: bool | None = None):
+    offset = (page - 1) * limit 
 
-    total = db.query(Tarefa).count()
+    query = db.query(Tarefa)
+    if concluida is not None:
+        query = query.filter(Tarefa.concluida == concluida )
 
-    tarefas = db.query(Tarefa).offset(offset).limit(limit).all()
+    total = query.count()
+
+    tarefas = query.offset(offset).limit(limit).all()
 
     total_paginas = (total + limit - 1) // limit
 
