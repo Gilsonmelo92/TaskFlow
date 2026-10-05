@@ -1,6 +1,3 @@
-from urllib import response
-
-
 def test_root(client):
     response = client.get("/")
 
