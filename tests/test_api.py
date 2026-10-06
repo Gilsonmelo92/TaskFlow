@@ -64,6 +64,45 @@ def test_list_tasks_filter_completed(client):
     assert response.json()["total"] == 1
     assert response.json()["total_paginas"] == 1
 
+def test_list_tasks_filter_not_completed(client):
+    # Criar tarefa concluida
+    response_criacao = client.post(
+        "/tarefas", json={ "titulo": "Tarefa 1"}
+    )
+    task_id = response_criacao.json()["id"]
+
+    response_update = client.put(
+        f"/tarefas/{task_id}", json={"concluida": True})
+
+    # Criar tarefa não concluída
+    client.post(
+        "/tarefas", json={ "titulo": "Tarefa 2"})
+    #filtrar tarefas não concluídas
+    response = client.get("/tarefas?concluida=false")
+
+    assert response.status_code == 200
+
+    assert len(response.json()["tarefas"]) == 1
+    assert response.json()["tarefas"][0]["titulo"] == "Tarefa 2"
+
+    assert response.json()["total"] == 1 
+    assert response.json()["total_paginas"] == 1 
+
+def test_list_tasks_filter_with_pagination(client):
+    # Criar 5 tarefas
+    for i in range(5):
+        client.post(
+            "/tarefas", json={ "titulo": f"Tarefa {i + 1}"}
+    )
+
+    response = client.get("/tarefas?concluida=false&page=1&limit=2")
+    
+    assert response.status_code == 200
+
+    assert len(response.json()["tarefas"]) == 2
+    
+    assert response.json()["total"] == 5 
+    assert response.json()["total_paginas"] == 3 
 
 
 def test_get_task(client):
