@@ -10,23 +10,53 @@ router = APIRouter(
 )
 
 # --- LISTAR TAREFAS ---
-@router.get(
-        "/tarefas", 
-        response_model=TaskListResponse,
-        summary= "Listar tarefas",
-        description= "Retorna uma página de tarefas cadastradas no sistema."
-        )
-def listar_tarefas(
-    page: int = Query(default=1, ge=1, description="Número da página a ser retornada."), 
-    limit: int = Query(default=10, ge=1, le=100, description= "Quantidade de tarefas a serem retornadas por página."),
-    concluida: bool | None = Query(
-        default= None, 
-        description = "Filtra tarefas pelo status de conclusão."
-    ),
 
-    db: Session = Depends(get_db)
-    ):
-    return task_service.listar_tarefas(db, page, limit, concluida)
+@router.get(
+    "/tarefas",
+    response_model=TaskListResponse,
+    summary="Listar tarefas",
+    description="Retorna uma página de tarefas cadastradas no sistema.",
+)
+def listar_tarefas(
+    page: int = Query(
+        default=1,
+        ge=1,
+        description="Número da página a ser retornada.",
+    ),
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100,
+        description="Quantidade de tarefas por página.",
+    ),
+    concluida: bool | None = Query(
+        default=None,
+        description="Filtra tarefas pelo status de conclusão.",
+    ),
+    ordenar_por: str = Query(
+        default="id",
+        description="Campo utilizado para ordenar as tarefas.",
+    ),
+    ordem: str = Query(
+        default="asc",
+        description="Direção da ordenação: asc ou desc.",
+    ),
+    db: Session = Depends(get_db),
+):
+    try:
+        return task_service.listar_tarefas(
+            db=db,
+            page=page,
+            limit=limit,
+            concluida=concluida,
+            ordenar_por=ordenar_por,
+            ordem=ordem,
+        )
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=400,
+            detail=str(erro),
+        ) from erro
 
 
 # --- BUSCAR TAREFA ---

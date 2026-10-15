@@ -38,6 +38,67 @@ def test_list_tasks(client):
     assert data["total"] == 1
     assert data["total_paginas"] == 1
 
+#teste de ordenação e paginação
+def test_list_tasks_sort_by_title_ascending(client):
+    client.post("/tarefas", json={ "titulo":"Zebra"})
+    client.post("/tarefas", json={ "titulo":"Abelha"})
+    client.post("/tarefas", json={ "titulo":"Morcego"})
+
+    response = client.get("/tarefas?ordenar_por=titulo&ordem=asc")
+
+    assert response.status_code == 200
+
+    data = response.json()
+    titulos = [tarefa["titulo"] for tarefa in data["tarefas"]]
+
+    assert titulos == ["Abelha", "Morcego", "Zebra"]
+
+def test_list_tasks_sort_by_id_descending(client):
+    client.post("/tarefas", json={ "titulo":"Tarefa A"})
+    client.post("/tarefas", json={ "titulo":"Tarefa B"})
+    client.post("/tarefas", json={ "titulo":"Tarefa C"})
+
+    response = client.get("/tarefas?ordenar_por=id&ordem=desc")
+
+    assert response.status_code == 200
+
+    data = response.json()
+    ids = [tarefa["id"] for tarefa in data["tarefas"]]
+
+    assert ids == sorted(ids, reverse=True)
+
+def test_list_tasks_invalid_sort_field(client):
+    response = client.get("/tarefas?ordenar_por=preco")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Campo de ordenação inválido."
+
+def test_list_tasks_invalid_sort_order(client):
+    response = client.get("/tarefas?ordenar_por=id&ordem=diagonal")
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Ordem de ordenação inválida."
+
+
+def test_list_tasks_filter_sort_and_pagination(client):
+    client.post("/tarefas", json={"titulo": "Zebra"})
+    client.post("/tarefas", json={"titulo": "Abelha"})
+    client.post("/tarefas", json={"titulo": "Morcego"})
+
+    response = client.get(
+        "/tarefas?concluida=false&ordenar_por=titulo&ordem=asc&page=1&limit=2"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+    titulos = [tarefa["titulo"] for tarefa in data["tarefas"]]
+
+    assert titulos == ["Abelha", "Morcego"]
+    assert data["total"] == 3
+    assert data["total_paginas"] == 2
+
+
 def test_list_tasks_filter_completed(client):
     # Criar tarefa concluida
     response_criacao = client.post(

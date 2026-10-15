@@ -1,28 +1,65 @@
 from app.schemas.task import TaskCreate, TaskUpdate
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from app.database.models import Tarefa
 
 # --- LISTAR TAREFAS ---
 #"Use esta Session para consultar a tabela representada pelo Model Tarefa e me devolva todos os registros."
 
-def listar_tarefas(db: Session, page: int = 1, limit: int = 10, concluida: bool | None = None):
-    offset = (page - 1) * limit 
 
+def listar_tarefas(
+    db: Session,
+    page: int = 1,
+    limit: int = 10,
+    concluida: bool | None = None,
+    ordenar_por: str = "id",
+    ordem: str = "asc",
+):
+    offset = (page - 1) * limit
+
+    # 1. Criar a query inicial
     query = db.query(Tarefa)
-    if concluida is not None:
-        query = query.filter(Tarefa.concluida == concluida )
 
+    # 2. Aplicar o filtro, se informado
+    if concluida is not None:
+        query = query.filter(Tarefa.concluida == concluida)
+
+    # 3. Contar os resultados após o filtro
     total = query.count()
 
+    # 4. Definir os campos permitidos para ordenação
+    campos_ordenacao = {
+        "id": Tarefa.id,
+        "titulo": Tarefa.titulo,
+        "concluida": Tarefa.concluida,
+    }
+
+    # 5. Validar o campo de ordenação
+    if ordenar_por not in campos_ordenacao:
+        raise ValueError("Campo de ordenação inválido.")
+
+    campo = campos_ordenacao[ordenar_por]
+
+    # 6. Aplicar a direção da ordenação
+    if ordem == "asc":
+        query = query.order_by(asc(campo))
+    elif ordem == "desc":
+        query = query.order_by(desc(campo))
+    else:
+        raise ValueError("Ordem de ordenação inválida.")
+
+    # 7. Aplicar a paginação
     tarefas = query.offset(offset).limit(limit).all()
 
+    # 8. Calcular o total de páginas
     total_paginas = (total + limit - 1) // limit
 
     return {
         "tarefas": tarefas,
         "total": total,
-        "total_paginas": total_paginas
+        "total_paginas": total_paginas,
     }
+
 # --- BUSCAR TAREFA ---
 def buscar_tarefa(db: Session, id: int):
     return db.query(Tarefa).filter(Tarefa.id == id).first()
