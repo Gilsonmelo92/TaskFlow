@@ -382,6 +382,21 @@ def test_list_tasks_empty(client):
     assert data["total"] == 0
     assert data["total_paginas"] == 0
 
+def test_list_tasks_beyond_last_page(client):
+    # Criar 23 tarefas
+    for i in range(23):
+        client.post(
+            "/tarefas", json={ "titulo": f"Tarefa {i + 1}"}
+        )
+    response = client.get("/tarefas?page=5&limit=10")
+
+    assert response.status_code == 200
+
+    data =response.json()
+
+    assert data["tarefas"] == []
+    assert data["total"] == 23
+    assert data["total_paginas"] == 3
 
 def test_create_task_strips_whitespace(client):
     response = client.post(
