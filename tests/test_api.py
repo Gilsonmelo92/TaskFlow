@@ -67,6 +67,23 @@ def test_list_tasks_sort_by_id_descending(client):
 
     assert ids == sorted(ids, reverse=True)
 
+def test_list_tasks_sort_by_title_ascending_uses_id_as_tiebreaker(client):
+    client.post("/tarefas", json={"titulo": "Estudar Python"})
+    client.post("/tarefas", json={"titulo": "Estudar Python"})
+    client.post("/tarefas", json={"titulo": "Estudar Python"})
+
+    response = client.get(
+        "/tarefas?ordenar_por=titulo&ordem=asc"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+    ids = [tarefa["id"] for tarefa in data["tarefas"]]
+
+    assert ids == sorted(ids)
+
+
 def test_list_tasks_invalid_sort_field(client):
     response = client.get("/tarefas?ordenar_por=preco")
 

@@ -42,9 +42,9 @@ def listar_tarefas(
 
     # 6. Aplicar a direção da ordenação
     if ordem == "asc":
-        query = query.order_by(asc(campo))
+        query = query.order_by(asc(campo), asc(Tarefa.id))
     elif ordem == "desc":
-        query = query.order_by(desc(campo))
+        query = query.order_by(desc(campo), desc(Tarefa.id))
     else:
         raise ValueError("Ordem de ordenação inválida.")
 
