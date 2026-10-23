@@ -415,6 +415,26 @@ def test_list_tasks_beyond_last_page(client):
     assert data["total"] == 23
     assert data["total_paginas"] == 3
 
+def test_list_tasks_page_zero_returns_422(client):
+    response = client.get("/tarefas?page=0")
+
+    assert response.status_code == 422
+
+def test_list_tasks_limit_zero_returns_422(client):
+    response = client.get("/tarefas?limit=0")
+
+    assert response.status_code == 422
+
+def test_list_tasks_limit_above_maximum_returns_422(client):
+    response = client.get("/tarefas?limit=101")
+
+    assert response.status_code == 422
+
+def test_list_tasks_non_numeric_returns_422(client):
+    response = client.get("/tarefas?limit=abc")
+
+    assert response.status_code == 422
+
 def test_create_task_strips_whitespace(client):
     response = client.post(
         "/tarefas",
