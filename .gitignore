@@ -1,9 +1,12 @@
 # Ambiente virtual
 .venv/
+.venv-linux/
+venv/
 
 # Cache do Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
 
 # Configurações do VS Code
 .vscode/
@@ -13,3 +16,6 @@ __pycache__/
 
 # Bancos de dados SQLite
 *.db
+
+# Docker
+
