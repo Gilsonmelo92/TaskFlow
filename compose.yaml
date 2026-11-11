@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    container_name: taskflow_api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/database.db
+    volumes:
+      - taskflow_data:/data
+
+volumes:
+  taskflow_data:
