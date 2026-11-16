@@ -215,7 +215,7 @@ def test_get_task_not_found(client):
 
     assert data["detail"] == "Tarefa não encontrada"      
 
-def test_update_task(client):
+def test_update_task_return_updated_data(client):
     create_response = client.post(
         "/tarefas",
         json={
@@ -242,7 +242,7 @@ def test_update_task(client):
     assert data["titulo"] == "Título atualizado"
     assert data["concluida"] is False  
 
-def test_update_task(client):
+def test_update_task_persists_updated_data(client):
     create_response = client.post(
         "/tarefas",
         json={
