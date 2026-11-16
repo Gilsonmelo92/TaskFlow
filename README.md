@@ -2,7 +2,7 @@
 
 API REST para gerenciamento de tarefas, desenvolvida em Python utilizando FastAPI e SQLAlchemy.
 
-O projeto foi desenvolvido com foco em boas práticas de desenvolvimento, organização em camadas, validação de dados, persistência em banco de dados e testes automatizados.
+O projeto foi desenvolvido com foco em boas práticas de desenvolvimento, organização em camadas, validação de dados, persistência em banco de dados, testes automatizados e containerização com Docker.
 
 ## 🚀 Tecnologias
 
@@ -13,49 +13,60 @@ O projeto foi desenvolvido com foco em boas práticas de desenvolvimento, organi
 - SQLite
 - Uvicorn
 - Pytest
+- Docker
+- Docker Compose
 - Git
 - GitHub
 
 ## 📋 Funcionalidades
 
-- Criar tarefas
-- Listar tarefas com paginação
-- Buscar tarefa por ID
-- Atualizar tarefas
-- Excluir tarefas
-- Marcar tarefas como concluídas
-- Filtrar tarefas pelo status de conclusão
-- Ordenar tarefas por ID, título ou status de conclusão
-- Ordenação ascendente (`asc`) e descendente (`desc`)
-- Retornar metadados da listagem, incluindo total de tarefas e total de páginas
-- Validar os dados recebidos com Pydantic
-- Validar títulos, incluindo tamanho mínimo e máximo e remoção de espaços desnecessários
-- Rejeitar campos extras nos payloads
-- Permitir atualização parcial de tarefas
-- Tratar tarefas inexistentes
-- Tratar parâmetros de ordenação inválidos
-- Testar o comportamento da API com Pytest
+- Criar tarefas.
+- Listar tarefas com paginação.
+- Buscar tarefa por ID.
+- Atualizar tarefas.
+- Excluir tarefas.
+- Marcar tarefas como concluídas.
+- Filtrar tarefas pelo status de conclusão.
+- Ordenar tarefas por ID, título ou status de conclusão.
+- Ordenação ascendente (`asc`) e descendente (`desc`).
+- Retornar metadados da listagem, incluindo total de tarefas e total de páginas.
+- Validar os dados recebidos com Pydantic.
+- Validar títulos, incluindo tamanho mínimo e máximo e remoção de espaços desnecessários.
+- Rejeitar campos extras nos payloads.
+- Permitir atualização parcial de tarefas.
+- Tratar tarefas inexistentes.
+- Tratar parâmetros de ordenação inválidos.
+- Configurar a conexão com o banco de dados através de variáveis de ambiente.
+- Executar a aplicação em containers com Docker e Docker Compose.
+- Persistir os dados utilizando volumes Docker.
+- Testar o comportamento da API com Pytest.
 
 ## 🏗️ Estrutura do projeto
 
 ```text
-app/
-├── database/
-│   ├── database.py
-│   └── models.py
-├── routers/
-│   └── tasks.py
-├── schemas/
-│   └── task.py
-├── services/
-│   └── task_service.py
-└── main.py
-
-tests/
-├── conftest.py
-├── test_api.py
-├── test_database.py
-└── test_tasks.py
+TaskFlow/
+├── app/
+│   ├── database/
+│   │   ├── database.py
+│   │   └── models.py
+│   ├── routers/
+│   │   └── tasks.py
+│   ├── schemas/
+│   │   └── task.py
+│   ├── services/
+│   │   └── task_service.py
+│   └── main.py
+├── tests/
+│   ├── conftest.py
+│   ├── test_api.py
+│   ├── test_database.py
+│   └── test_tasks.py
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── compose.yaml
+├── Dockerfile
+└── requirements.txt
 ```
 
 ## 🔄 Arquitetura
@@ -87,7 +98,7 @@ SQLite
 A API disponibiliza operações para criar, listar, consultar, atualizar e excluir tarefas.
 
 | Método | Endpoint | Descrição |
-| --- | --- | --- |
+|---|---|---|
 | GET | `/` | Retorna a mensagem de boas-vindas |
 | POST | `/tarefas` | Cria uma tarefa |
 | GET | `/tarefas` | Lista tarefas com filtros, sorting e paginação |
@@ -100,9 +111,9 @@ A API disponibiliza operações para criar, listar, consultar, atualizar e exclu
 O endpoint `GET /tarefas` aceita query parameters para controlar os resultados.
 
 | Parâmetro | Padrão | Descrição |
-| --- | --- | --- |
-| `page` | `1` | Número da página; mínimo `1` |
-| `limit` | `10` | Quantidade de tarefas por página; de `1` a `100` |
+|---|---|---|
+| `page` | 1 | Número da página; mínimo 1 |
+| `limit` | 10 | Quantidade de tarefas por página; de 1 a 100 |
 | `concluida` | Sem filtro | Filtra por `true` ou `false` |
 | `ordenar_por` | `id` | Campo: `id`, `titulo` ou `concluida` |
 | `ordem` | `asc` | Direção: `asc` ou `desc` |
@@ -174,31 +185,31 @@ O exemplo é ilustrativo. Os valores retornados dependem dos dados existentes no
 A API utiliza validação de dados e respostas HTTP adequadas aos diferentes cenários.
 
 | Status HTTP | Significado | Exemplo |
-| --- | --- | --- |
-| `200 OK` | Requisição executada com sucesso | Listagem ou consulta concluída |
-| `201 Created` | Recurso criado | Criação de uma tarefa |
-| `400 Bad Request` | Parâmetro inválido segundo uma regra da aplicação | Campo ou direção de sorting inválidos |
-| `404 Not Found` | Recurso não encontrado | Consulta, atualização ou exclusão de uma tarefa inexistente |
-| `422 Unprocessable Entity` | Dados recebidos não passaram na validação | Título inválido ou campo extra não permitido |
+|---|---|---|
+| 200 OK | Requisição executada com sucesso | Listagem ou consulta concluída |
+| 201 Created | Recurso criado | Criação de uma tarefa |
+| 400 Bad Request | Parâmetro inválido segundo uma regra da aplicação | Campo ou direção de sorting inválidos |
+| 404 Not Found | Recurso não encontrado | Consulta, atualização ou exclusão de uma tarefa inexistente |
+| 422 Unprocessable Entity | Dados recebidos não passaram na validação | Título inválido ou campo extra não permitido |
 
 O FastAPI e o Pydantic realizam a validação das requisições, enquanto o router converte erros específicos da aplicação em respostas HTTP. O service mantém as regras da aplicação separadas dos detalhes do protocolo HTTP.
 
 ## 🧪 Testes automatizados
 
-O projeto possui testes automatizados utilizando Pytest, organizados em arquivos que cobrem a API, os services e a camada de banco de dados.
+O projeto utiliza Pytest para executar testes automatizados, organizados em arquivos que cobrem a API, os services e a camada de banco de dados.
 
 Os testes verificam, entre outros cenários:
 
-- Criação, consulta, atualização e exclusão de tarefas
-- Validação de dados e rejeição de campos extras
-- Tratamento de recursos inexistentes
-- Paginação e metadados da listagem
-- Filtros por conclusão
-- Ordenação ascendente e descendente
-- Combinação de filtros, sorting e paginação
-- Comportamento da conexão com o banco de dados
+- Criação, consulta, atualização e exclusão de tarefas.
+- Validação de dados e rejeição de campos extras.
+- Tratamento de recursos inexistentes.
+- Paginação e metadados da listagem.
+- Filtros por conclusão.
+- Ordenação ascendente e descendente.
+- Combinação de filtros, sorting e paginação.
+- Comportamento da conexão com o banco de dados.
 
-**Último resultado registrado:** 57 testes aprovados.
+**Último resultado registrado: 62 testes aprovados.**
 
 Para executar a suíte completa:
 
@@ -208,7 +219,7 @@ python -m pytest -v
 
 Os testes utilizam um banco de dados separado do banco principal da aplicação, evitando que os testes alterem os dados reais do desenvolvimento.
 
-## ▶️ Como executar o projeto
+## ▶️ Como executar o projeto localmente
 
 ### 1. Clonar o repositório
 
@@ -216,7 +227,7 @@ Os testes utilizam um banco de dados separado do banco principal da aplicação,
 git clone https://github.com/Gilsonmelo92/TaskFlow.git
 ```
 
-### 2. Entrar na pasta
+### 2. Entrar na pasta do projeto
 
 ```bash
 cd TaskFlow
@@ -228,10 +239,18 @@ cd TaskFlow
 python -m venv .venv
 ```
 
-### 4. Ativar o ambiente virtual no Windows
+### 4. Ativar o ambiente virtual
+
+**Windows PowerShell:**
 
 ```powershell
 .venv\Scripts\Activate.ps1
+```
+
+**Linux / WSL:**
+
+```bash
+source .venv/bin/activate
 ```
 
 ### 5. Instalar as dependências
@@ -248,15 +267,98 @@ uvicorn app.main:app --reload
 
 A API estará disponível em:
 
-<http://127.0.0.1:8000>
+http://127.0.0.1:8000
+
+### Documentação interativa
 
 A documentação interativa do FastAPI pode ser acessada pelo Swagger:
 
-<http://127.0.0.1:8000/docs>
+http://127.0.0.1:8000/docs
 
 A documentação alternativa está disponível em:
 
-<http://127.0.0.1:8000/redoc>
+http://127.0.0.1:8000/redoc
+
+## 🐳 Executar com Docker
+
+O projeto também pode ser executado em containers utilizando Docker e Docker Compose.
+
+### Pré-requisitos
+
+- Docker Desktop instalado e em execução.
+- Docker Compose disponível.
+
+### 1. Configurar as variáveis de ambiente
+
+Na raiz do projeto, criar o ficheiro `.env` a partir do modelo disponibilizado:
+
+```bash
+cp .env.example .env
+```
+
+O conteúdo do `.env.example` é:
+
+```env
+DATABASE_URL=sqlite:////data/database.db
+```
+
+O ficheiro `.env` contém a configuração local e não deve ser enviado para o GitHub.
+
+### 2. Construir e iniciar os containers
+
+```bash
+docker compose up -d --build
+```
+
+### 3. Verificar o estado dos containers
+
+```bash
+docker compose ps
+```
+
+### 4. Aceder à API
+
+A API estará disponível em:
+
+http://localhost:8000
+
+A documentação Swagger estará disponível em:
+
+http://localhost:8000/docs
+
+### 5. Consultar os logs
+
+```bash
+docker compose logs -f api
+```
+
+### 6. Parar os containers
+
+```bash
+docker compose down
+```
+
+Os dados da aplicação são armazenados num volume Docker nomeado, permitindo preservar a base de dados mesmo quando os containers são parados e recriados.
+
+Para remover também o volume e os dados persistidos, seria necessário utilizar:
+
+```bash
+docker compose down -v
+```
+
+**Atenção:** este último comando elimina os dados armazenados no volume.
+
+## ⚙️ Configuração e variáveis de ambiente
+
+A aplicação permite configurar a conexão com o banco de dados através da variável de ambiente:
+
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | Define a URL de conexão com o banco de dados |
+
+A configuração permite separar os parâmetros do ambiente de execução do código da aplicação, facilitando a utilização em diferentes ambientes.
+
+O ficheiro `.env` é utilizado localmente pelo Docker Compose, enquanto `.env.example` disponibiliza um modelo de configuração para outros programadores.
 
 ## 🎯 Objetivo do projeto
 
@@ -264,19 +366,21 @@ O TaskFlow faz parte do meu processo de desenvolvimento de competências em dese
 
 O objetivo é construir uma aplicação prática aplicando conceitos de:
 
-- Desenvolvimento de APIs REST
-- Python e FastAPI
-- Validação com Pydantic
-- Persistência de dados com SQLAlchemy e SQLite
-- Arquitetura em camadas e separação de responsabilidades
-- Tratamento de erros HTTP
-- Testes automatizados com Pytest
-- Controle de versão com Git e GitHub
+- Desenvolvimento de APIs REST.
+- Python e FastAPI.
+- Validação com Pydantic.
+- Persistência de dados com SQLAlchemy e SQLite.
+- Arquitetura em camadas e separação de responsabilidades.
+- Tratamento de erros HTTP.
+- Testes automatizados com Pytest.
+- Containerização com Docker e Docker Compose.
+- Configuração através de variáveis de ambiente.
+- Controle de versão com Git e GitHub.
 
 O projeto é desenvolvido de forma incremental, com implementação de funcionalidades, testes, revisão de código e documentação.
 
 ## 👨‍💻 Autor
 
-Gilson Melo
+**Gilson Melo**
 
-GitHub: <https://github.com/Gilsonmelo92>
+GitHub: [GilsonMelo92](https://github.com/Gilsonmelo92)
