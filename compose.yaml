@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/database.db}
     volumes:
       - taskflow_data:/data
 
